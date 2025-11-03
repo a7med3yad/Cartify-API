@@ -21,7 +21,7 @@ function isTokenExpired(tokenData) {
 // دالة لتحديث JWT باستخدام Refresh Token الموجود في HttpOnly Cookie
 function refreshToken() {
     return $.ajax({
-        url: "https://localhost:7212/api/Users/RefreshToken",
+        url: "https://cartify.runasp.net/api/Users/RefreshToken",
         method: 'POST',
         xhrFields: { withCredentials: true }, // مهم لإرسال الكوكي تلقائي
         success: function(data) {

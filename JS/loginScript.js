@@ -6,7 +6,7 @@ $(document).ready(function () {
     var formdata = $(this).serialize();
     $.ajax({
       type: "post",
-      url: "https://localhost:7212/api/Users/Login",
+      url: "https://cartify.runasp.net/api/Users/Login",
       data: formdata,
       success: function (response) {
         const rememberMe = $("#rememberMe").is(":checked");
@@ -88,7 +88,7 @@ $(document).ready(function () {
 
     $.ajax({
       type: "post",
-      url: "https://localhost:7212/api/Users/ResetPassword/CheckEmailAndGenerateCode",
+      url: "https://cartify.runasp.net/api/Users/ResetPassword/CheckEmailAndGenerateCode",
       data: JSON.stringify(email),
       contentType: "application/json",
       success: function (response) {

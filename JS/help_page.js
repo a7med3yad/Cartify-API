@@ -9,6 +9,7 @@ const callSupportBtn = document.getElementById('callSupportBtn');
 // Function to show notification
 function showNotification(message, type) {
   notification.textContent = message;
+  
   notification.className = `notification ${type} show`;
   
   setTimeout(() => {

@@ -125,7 +125,7 @@ $(".FORM").submit(function (e) {
 
     $.ajax({
         type: "post",
-        url: "https://localhost:7212/api/Users/Register",
+        url: "https://cartify.runasp.net/api/Users/Register",
         data: $(this).serialize(),
         success: function () { 
             // لو التسجيل نجح
