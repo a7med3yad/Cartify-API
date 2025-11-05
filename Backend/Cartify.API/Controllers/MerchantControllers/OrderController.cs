@@ -24,9 +24,12 @@ namespace Cartify.API.Controllers.MerchantControllers
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById([FromRoute] string orderId)
         {
+            if (string.IsNullOrWhiteSpace(orderId))
+                return BadRequest(new { message = "Order ID is required" });
+
             var order = await _orderServices.GetOrderByIdAsync(orderId);
             if (order == null)
-                return NotFound(new { message = "Order not found ❌" });
+                return NotFound(new { message = "Order not found" });
 
             return Ok(order);
         }
@@ -40,6 +43,12 @@ namespace Cartify.API.Controllers.MerchantControllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
+            if (storeId <= 0)
+                return BadRequest(new { message = "Invalid store ID" });
+
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
             var orders = await _orderServices.GetOrdersByStoreIdAsync(storeId, page, pageSize);
             return Ok(orders);
         }
@@ -48,21 +57,26 @@ namespace Cartify.API.Controllers.MerchantControllers
         // 🔹 UPDATE ORDER STATUS
         // =========================================================
         [HttpPut("{orderId}/status")]
-        public async Task<IActionResult> UpdateOrderStatus([FromRoute] string orderId, [FromQuery] string newStatus)
+        public async Task<IActionResult> UpdateOrderStatus(
+            [FromRoute] string orderId,
+            [FromBody] UpdateOrderStatusDto dto)
         {
-            if (string.IsNullOrWhiteSpace(newStatus))
-                return BadRequest(new { message = "Status is required ❗" });
+            if (string.IsNullOrWhiteSpace(orderId))
+                return BadRequest(new { message = "Order ID is required" });
 
-            var result = await _orderServices.UpdateOrderStatusAsync(orderId, newStatus);
+            if (!ModelState.IsValid)
+                return BadRequest(new { message = "Invalid input data", errors = ModelState });
+
+            var result = await _orderServices.UpdateOrderStatusAsync(orderId, dto.Status);
 
             if (!result)
-                return BadRequest(new { message = "Failed to update order status ❌" });
+                return BadRequest(new { message = "Failed to update order status. Order not found or invalid status." });
 
-            return Ok(new { message = $"Order status updated to '{newStatus}' ✅" });
+            return Ok(new { message = $"Order status updated to '{dto.Status}' successfully", success = true });
         }
 
         // =========================================================
-        // 🔹 FILTER ORDERS (Optional - To Implement)
+        // 🔹 FILTER ORDERS
         // =========================================================
         [HttpGet("filter")]
         public async Task<IActionResult> FilterOrders(
@@ -73,9 +87,24 @@ namespace Cartify.API.Controllers.MerchantControllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 10)
         {
-            // ⚠️ This is a placeholder until the logic is implemented in the service
-            var result = await _orderServices.FilterOrdersAsync(storeId, startDate, endDate, status, page, pageSize);
-            return Ok(result);
+            if (storeId <= 0)
+                return BadRequest(new { message = "Invalid store ID" });
+
+            if (startDate.HasValue && endDate.HasValue && startDate > endDate)
+                return BadRequest(new { message = "Start date cannot be after end date" });
+
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+
+            try
+            {
+                var result = await _orderServices.FilterOrdersAsync(storeId, startDate, endDate, status, page, pageSize);
+                return Ok(result);
+            }
+            catch (NotImplementedException)
+            {
+                return StatusCode(501, new { message = "Filter orders feature is not yet implemented" });
+            }
         }
     }
 }

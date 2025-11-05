@@ -1,27 +1,30 @@
 ﻿using Cartify.Domain.Interfaces.Repositories;
 using Cartify.Domain.Models;
 using Cartify.Infrastructure.Persistence;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cartify.Infrastructure.Implementation.Repository
 {
     public class ProfileRepository : Repository<TblUser>, IProfileRepository
     {
-        private readonly AppDbContext _Context;
+        private readonly AppDbContext _context;
 
-        public ProfileRepository(AppDbContext Context):base(Context)
+        public ProfileRepository(AppDbContext context) : base(context)
         {
-            this._Context = Context;
+            _context = context;
         }
 
-
-        public Task<TblUser> GetUser(int id)
+        public async Task<TblUser> GetUser(int id)
         {
-            throw new NotImplementedException();
+            return await _context.TblUsers
+                .Include(u => u.TblAddresses)
+                .FirstOrDefaultAsync(u => u.Id == id.ToString());
+        }
+
+        public async Task UpdateAsync(TblUser user)
+        {
+            _context.TblUsers.Update(user);
+            await _context.SaveChangesAsync();
         }
     }
 }

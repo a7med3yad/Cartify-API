@@ -1,18 +1,84 @@
-﻿using Cartify.Application.Services.Interfaces.Product;
-using Microsoft.AspNetCore.Http;
+﻿using Cartify.Application.Services.Interfaces;
+using Cartify.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Cartify.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ProfileController : ControllerBase
     {
-        private readonly IProfileServices profileServices;
-        public ProfileController(IProfileServices profileServices)
+        private readonly IProfileService _profileService;
+
+        public ProfileController(IProfileService profileService)
         {
-            this.profileServices = profileServices;
+            _profileService = profileService;
         }
 
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetUserProfile(int userId)
+        {
+            try
+            {
+                var user = await _profileService.GetUserProfileAsync(userId);
+                if (user == null)
+                    return NotFound(new { message = "User not found" });
+
+                // Return only the data we need
+                var userProfile = new
+                {
+                    id = user.Id,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    email = user.Email,
+                    phoneNumber = user.PhoneNumber,
+                    birthDate = user.BirthDate,
+                    imgUrl = user.ImgUrl
+                };
+
+                return Ok(userProfile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUserProfile(int userId, [FromBody] UpdateProfileRequest request)
+        {
+            try
+            {
+                // Get existing user
+                var existingUser = await _profileService.GetUserProfileAsync(userId);
+                if (existingUser == null)
+                    return NotFound(new { message = "User not found" });
+
+                // Update only the allowed fields
+                existingUser.FirstName = request.FirstName;
+                existingUser.LastName = request.LastName;
+                existingUser.PhoneNumber = request.PhoneNumber;
+                existingUser.BirthDate = request.BirthDate;
+
+                var result = await _profileService.UpdateUserProfileAsync(existingUser);
+                if (!result)
+                    return BadRequest(new { message = "Update failed" });
+
+                return Ok(new { message = "Profile updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+    }
+
+    // DTO for update request
+    public class UpdateProfileRequest
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string PhoneNumber { get; set; }
+        public DateOnly? BirthDate { get; set; }
     }
 }

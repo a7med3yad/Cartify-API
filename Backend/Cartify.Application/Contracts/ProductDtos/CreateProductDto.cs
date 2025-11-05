@@ -12,7 +12,5 @@ namespace Cartify.Application.Contracts.ProductDtos
         public string ProductDescription { get; set; }
         public int TypeId { get; set; }
         public int StoreId { get; set; }
-        public decimal? DefaultPrice { get; set; }
-        public string? SerialNumber { get; set; }
     }
 }
