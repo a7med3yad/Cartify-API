@@ -42,10 +42,10 @@ namespace Cartify.Application.Services.Implementation.Merchant
             if (string.IsNullOrEmpty(merchantId))
                 return false;
 
-            var store = await _unitOfWork.UserStorerepository
-                .Search(s => s.MerchantId == merchantId && !s.IsDeleted);
+            // استرجع الـ Store بناءً على الـ merchantId
+            var storeid = _getUserServices.GetMerchantIdFromToken();
 
-            if (store == null)
+            if (storeid == null)
                 return false;
 
             var product = new TblProduct
@@ -53,12 +53,13 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 ProductName = dto.ProductName,
                 ProductDescription = dto.ProductDescription,
                 TypeId = dto.TypeId,
-                UserStoreId = store.UserStoreId
+                UserStoreId = int.Parse(storeid)
             };
 
             await _unitOfWork.ProductRepository.CreateAsync(product);
             return await _unitOfWork.SaveChanges() > 0;
         }
+
 
         public async Task<bool> UpdateProductAsync(int productId, UpdateProductDto dto)
         {
@@ -213,7 +214,6 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 ProductDescription = p.ProductDescription,
                 TypeName = p.Type?.TypeName ?? "",
                 CategoryName = p.Type?.Category?.CategoryName ?? "",
-                StoreId = p.UserStoreId,
                 ImageUrl = p.TblProductImages?.FirstOrDefault()?.ImageURL
             }).ToList();
 
@@ -238,6 +238,7 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
+
 
             var productDtos = pagedProducts.Select(p => new ProductDto
             {

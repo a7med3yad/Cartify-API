@@ -1,28 +1,34 @@
-﻿using Cartify.Application.Services.Interfaces.Product;
+﻿using Cartify.Application.Services.Interfaces;
 using Cartify.Domain.Interfaces.Repositories;
 using Cartify.Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Cartify.Application.Services.Implementation.Profile
+namespace Cartify.Application.Services.Implementation
 {
-    public class ProfileServices : IProfileServices
+    public class ProfileService : IProfileService
     {
-        private readonly IUnitOfWork unitOfWork;
+        private readonly IProfileRepository _profileRepository;
 
-        public ProfileServices(IUnitOfWork unitOfWork)
+        public ProfileService(IProfileRepository profileRepository)
         {
-            this.unitOfWork = unitOfWork;
+            _profileRepository = profileRepository;
         }
 
-        public async Task<TblUser> GetUsersProfilePicture(int id)
+        public async Task<TblUser> GetUserProfileAsync(int userId)
         {
-            return await unitOfWork.ProfileRepository.GetUser(id);
-            //var ProfilePicture = unitOfWork.ProfileRepository.GetUser(id).select(imgurl);
-           // return await ProfilePicture;
+            return await _profileRepository.GetUser(userId);
+        }
+
+        public async Task<bool> UpdateUserProfileAsync(TblUser user)
+        {
+            try
+            {
+                await _profileRepository.UpdateAsync(user);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
