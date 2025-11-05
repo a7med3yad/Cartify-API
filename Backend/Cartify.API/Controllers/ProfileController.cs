@@ -1,6 +1,9 @@
-﻿using Cartify.Application.Services.Interfaces;
+﻿using Cartify.Application.Contracts.ProfileDtos;
+using Cartify.Application.Services.Interfaces;
 using Cartify.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace Cartify.API.Controllers
 {
@@ -33,7 +36,7 @@ namespace Cartify.API.Controllers
                     email = user.Email,
                     phoneNumber = user.PhoneNumber,
                     birthDate = user.BirthDate,
-                    imgUrl = user.ImgUrl
+                  
                 };
 
                 return Ok(userProfile);
@@ -45,7 +48,7 @@ namespace Cartify.API.Controllers
         }
 
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUserProfile(int userId, [FromBody] UpdateProfileRequest request)
+        public async Task<IActionResult> UpdateUserProfile(int userId, [FromBody] Cartify.Application.Contracts.ProfileDtos.UpdateProfileDto request)
         {
             try
             {
@@ -71,14 +74,5 @@ namespace Cartify.API.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-    }
-
-    // DTO for update request
-    public class UpdateProfileRequest
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string PhoneNumber { get; set; }
-        public DateOnly? BirthDate { get; set; }
     }
 }

@@ -15,17 +15,17 @@ namespace Cartify.Application.Services.Implementation
 
         public async Task<List<TblOrder>> GetUserOrdersAsync(int userId)
         {
-            return await _unitOfWork.OrderRepository.GetUserOrdersAsync(userId);
+            return await _unitOfWork.OrdertrackingRepository.GetUserOrdersAsync(userId);
         }
 
         public async Task<TblOrder> GetOrderDetailsAsync(string orderId)
         {
-            return await _unitOfWork.OrderRepository.GetOrderByIdAsync(orderId);
+            return await _unitOfWork.OrdertrackingRepository.GetOrderByIdAsync(orderId);
         }
 
         public async Task<bool> CancelOrderAsync(string orderId)
         {
-            return await _unitOfWork.OrderRepository.CancelOrderAsync(orderId);
+            return await _unitOfWork.OrdertrackingRepository.CancelOrderAsync(orderId);
         }
     }
 }

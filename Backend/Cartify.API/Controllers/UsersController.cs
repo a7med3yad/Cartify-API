@@ -109,9 +109,9 @@ namespace Cartify.API.Controllers
 			return Ok();
 		}
 		[HttpPost("ResetPassword/CheckEmailAndGenerateCode")]
-		public async Task<IActionResult> ResetPassword([FromBody]string Email)
+		public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordEmailDto request)
 		{
-			var result=await _resetPassword.Reset(new dtoSendEmail { ToEmail=Email});
+			var result=await _resetPassword.Reset(new dtoSendEmail { ToEmail=request.Email});
 			if (!result.Result)
 			{
 				return BadRequest(result.Message);
@@ -133,12 +133,12 @@ namespace Cartify.API.Controllers
 		}
 		[HttpPost("CreateMerchantProfile")]
 		[Authorize(Roles ="User")]
-		public async Task<IActionResult> CreateMerchantProfile([FromBody]string StoreName)
+		public async Task<IActionResult> CreateMerchantProfile([FromBody] CreateMerchantProfileDto request)
 		{
 
 
 			var Email = User.FindFirst(ClaimTypes.Email)?.Value;
-			var token=await _profile.CreateProfile(Email, StoreName);
+			var token=await _profile.CreateProfile(Email, request.StoreName);
 			return Ok(new TokenResult { Jwt = token.Jwt, JwtExpiry = token.JwtExpiry });
 		}
 	}

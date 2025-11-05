@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cartify.Application.Contracts.HelpPageDtos;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,14 +25,14 @@ namespace Cartify.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody] object topic)
+        public async Task<IActionResult> Create([FromBody] CreateHelpTopicDto topic)
         {
             await Task.CompletedTask;
             return Ok();
         }
 
         [HttpPut("Update/{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] object topic)
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateHelpTopicDto topic)
         {
             await Task.CompletedTask;
             return Ok();
