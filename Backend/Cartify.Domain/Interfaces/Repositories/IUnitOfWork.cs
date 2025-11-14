@@ -20,6 +20,8 @@ public interface IUnitOfWork : IDisposable
     public IRepository<LkpPromotion> PromotionsRepository { get; }
     public IRepository<lkpAttribute> AttributeRepository { get; }
     public IRepository<LkpMeasureUnite> MeasureUnitRepository { get; }
+    public ICheckoutRepository CheckoutRepository { get; }
+    public IOrdertrackingRepository OrdertrackingRepository { get; }
     Task<int> SaveChanges();
 
 }

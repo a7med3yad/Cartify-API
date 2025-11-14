@@ -2,10 +2,13 @@
 using Cartify.Application.Mappings;
 using Cartify.Application.Services.Implementation;
 using Cartify.Application.Services.Implementation.Authentication;
+using Cartify.Application.Services.Implementation.Customer;
 using Cartify.Application.Services.Implementation.Helper;
 using Cartify.Application.Services.Implementation.Merchant;
 using Cartify.Application.Services.Implementation.Profile;
+using Cartify.Application.Services.Interfaces;
 using Cartify.Application.Services.Interfaces.Authentication;
+using Cartify.Application.Services.Interfaces.Customer;
 using Cartify.Application.Services.Interfaces.Merchant;
 using Cartify.Application.Services.Interfaces.Product;
 using Cartify.Domain.Interfaces.Repositories;
@@ -97,6 +100,8 @@ namespace Cartify.API
 
             // 🧱 Infrastructure Repositories
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<ICheckoutRepository, CheckoutRepository>();
+            builder.Services.AddScoped<IOrdertrackingRepository, OrdertrackingRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // 📧 Helpers & Utilities
@@ -107,6 +112,12 @@ namespace Cartify.API
             // 👤 Profile Services
             builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
             builder.Services.AddScoped<IProfileServices, ProfileServices>();
+            builder.Services.AddScoped<IProfileService, ProfileService>();
+
+            // 🛒 Order & Checkout Services
+            builder.Services.AddScoped<ICheckoutService, CheckoutService>();
+            builder.Services.AddScoped<IOrdertrackingservice, OrdertrackingService>();
+            builder.Services.AddScoped<ICustomerOrderService, CustomerOrderService>();
 
             // 🛍️ Merchant Services
             builder.Services.AddScoped<IMerchantProductServices, MerchantProductServices>();
@@ -192,11 +203,17 @@ namespace Cartify.API
             if (app.Environment.IsDevelopment())
             {
                 app.UseCors("AllowGitHub");
-                app.UseSwagger();
-                app.UseSwaggerUI();
             }
 
-            
+            // ✅ Enable Swagger in all environments (Development & Production)
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cartify API v1");
+                c.RoutePrefix = "swagger"; // Swagger will be available at /swagger
+                c.DocumentTitle = "Cartify API Documentation";
+                c.DefaultModelsExpandDepth(-1); // Hide models section by default
+            });
 
             app.UseHttpsRedirection();
             app.UseCors("AllowGitHub");

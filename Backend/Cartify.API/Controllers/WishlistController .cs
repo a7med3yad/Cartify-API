@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cartify.Application.Contracts.WishlistDtos;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace Cartify.API.Controllers
         }
 
         [HttpPost("Add")]
-        public async Task<IActionResult> Add([FromBody] object item)
+        public async Task<IActionResult> Add([FromBody] AddWishlistItemDto item)
         {
             await Task.CompletedTask;
             return Ok();

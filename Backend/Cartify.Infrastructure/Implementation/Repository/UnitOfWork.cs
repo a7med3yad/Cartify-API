@@ -41,6 +41,10 @@ namespace Cartify.Infrastructure.Implementation.Services
 
         public IRepository<LkpOrderStatue> OrderStatusRepository { get; }
 
+        public ICheckoutRepository CheckoutRepository { get; }
+
+        public IOrdertrackingRepository OrdertrackingRepository { get; }
+
         public UnitOfWork(
 			AppDbContext context,
             IRepository<LkpOrderStatue> OrderStatusRepository,
@@ -58,7 +62,9 @@ namespace Cartify.Infrastructure.Implementation.Services
 			IRepository<TblReview> reviewRepository,
 			IRepository<LkpPromotion> promotionsRepository,
 			IRepository<lkpAttribute> attributeRepository,
-			IRepository<LkpMeasureUnite> measureUnitRepository
+			IRepository<LkpMeasureUnite> measureUnitRepository,
+			ICheckoutRepository checkoutRepository,
+			IOrdertrackingRepository ordertrackingRepository
 
             )
 		{
@@ -79,6 +85,8 @@ namespace Cartify.Infrastructure.Implementation.Services
 			this.PromotionsRepository = promotionsRepository;
 			this.MeasureUnitRepository = measureUnitRepository;
 			this.OrderStatusRepository = OrderStatusRepository;
+			this.CheckoutRepository = checkoutRepository;
+			this.OrdertrackingRepository = ordertrackingRepository;
 
         }
 

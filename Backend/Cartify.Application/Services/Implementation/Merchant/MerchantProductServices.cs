@@ -43,9 +43,10 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 return false;
 
             // استرجع الـ Store بناءً على الـ merchantId
-            var storeid = _getUserServices.GetMerchantIdFromToken();
+            var store = await _unitOfWork.UserStorerepository.Search(
+                s => s.MerchantId == merchantId && !s.IsDeleted);
 
-            if (storeid == null)
+            if (store == null)
                 return false;
 
             var product = new TblProduct
@@ -53,7 +54,7 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 ProductName = dto.ProductName,
                 ProductDescription = dto.ProductDescription,
                 TypeId = dto.TypeId,
-                UserStoreId = int.Parse(storeid)
+                UserStoreId = store.UserStoreId
             };
 
             await _unitOfWork.ProductRepository.CreateAsync(product);
@@ -140,7 +141,7 @@ namespace Cartify.Application.Services.Implementation.Merchant
 
             product.TblProductImages ??= new List<TblProductImage>();
             var username = _getUserServices.GetUserNameFromToken() ?? "product";
-            var merchantId = int.Parse(_getUserServices.GetMerchantIdFromToken() ?? "0");
+            var merchantId = int.TryParse(_getUserServices.GetMerchantIdFromToken(), out var id) ? id : 0;
 
             foreach (var image in images)
             {
@@ -214,6 +215,7 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 ProductDescription = p.ProductDescription,
                 TypeName = p.Type?.TypeName ?? "",
                 CategoryName = p.Type?.Category?.CategoryName ?? "",
+                StoreId = p.UserStoreId,
                 ImageUrl = p.TblProductImages?.FirstOrDefault()?.ImageURL
             }).ToList();
 
@@ -318,6 +320,7 @@ namespace Cartify.Application.Services.Implementation.Merchant
                 ProductDetailId = productDetail.ProductDetailId,
                 Description = productDetail.Description,
                 Price = productDetail.Price,
+                Serial = productDetail.SerialNumber,
                 QuantityAvailable = productDetail.Inventory?.QuantityAvailable ?? 0,
                 Images = productDetail.Product?.TblProductImages?
                     .Select(i => i.ImageURL).ToList() ?? new List<string>(),
@@ -346,10 +349,11 @@ namespace Cartify.Application.Services.Implementation.Merchant
 
         public async Task<bool> AddProductDetailAsync(CreateProductDetailDto dto)
         {
+            var serial = await GenerateGlobalSerialAsync();
             var productDetail = new TblProductDetail
             {
+                SerialNumber = serial,
                 ProductId = dto.ProductId,
-                SerialNumber = dto.SerialNumber,
                 Price = dto.Price,
                 Description = dto.Description,
                 CreatedDate = DateTime.Now,
@@ -384,11 +388,11 @@ namespace Cartify.Application.Services.Implementation.Merchant
             if (productDetail == null || productDetail.IsDeleted)
                 return false;
 
-            productDetail.Price = dto.Price;
+            productDetail.Price = (decimal)dto.Price;
             productDetail.Description = dto.Description;
 
             if (productDetail.Inventory != null)
-                productDetail.Inventory.QuantityAvailable = dto.QuantityAvailable;
+                productDetail.Inventory.QuantityAvailable = (int)dto.QuantityAvailable;
 
             productDetail.LkpProductDetailsAttributes?.Clear();
             productDetail.LkpProductDetailsAttributes = dto.Attributes.Select(a => new LkpProductDetailsAttribute
@@ -410,12 +414,39 @@ namespace Cartify.Application.Services.Implementation.Merchant
 
             productDetail.IsDeleted = true;
             productDetail.DeletedDate = DateTime.Now;
-            productDetail.DeletedBy = int.Parse(_getUserServices.GetMerchantIdFromToken() ?? "0");
+            productDetail.DeletedBy = int.TryParse(_getUserServices.GetMerchantIdFromToken(), out var merchantId) ? merchantId : 0;
 
             _unitOfWork.ProductDetailsRepository.Update(productDetail);
             return await _unitOfWork.SaveChanges() > 0;
         }
 
         #endregion
+
+        // =========================================================
+        // 🔹 PRODUCT DETAILS
+        // =========================================================
+
+
+        public async Task<string> GenerateGlobalSerialAsync()
+        {
+            var lastDetail = await _unitOfWork.ProductDetailsRepository.GetAllIncluding2()
+                .OrderByDescending(p => p.ProductId)
+                .FirstOrDefaultAsync();
+
+            long nextNumber = 1;
+
+            if (lastDetail != null)
+            {
+                var parts = lastDetail.SerialNumber.Split('-'); // ["PD", "2025", "000123"]
+                if (parts.Length == 3 && long.TryParse(parts[2], out long lastNum))
+                {
+                    nextNumber = lastNum + 1;
+                }
+            }
+
+            string year = DateTime.UtcNow.Year.ToString();
+            return $"PD-{year}-{nextNumber:D6}";
+        }
     }
-}
+
+ }

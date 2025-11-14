@@ -15,7 +15,7 @@ namespace Cartify.Application.Services.Interfaces.Merchant
         Task<bool> AddProductImagesAsync(int productId, List<IFormFile> images);
         Task<bool> UpdateProductAsync(int productId, UpdateProductDto dto);
         Task<bool> DeleteProductAsync(int productId);
-        Task<ProductDetailDto> GetProductDetailAsync(int productDetailId);
+        Task<ProductDetailDto?> GetProductDetailAsync(int productDetailId);
         Task<bool> DeleteProductDetailAsync(int productDetailId);
         Task<bool> UpdateProductDetailAsync(UpdateProductDetailDto dto);
         Task<bool> AddProductDetailAsync(CreateProductDetailDto dto);

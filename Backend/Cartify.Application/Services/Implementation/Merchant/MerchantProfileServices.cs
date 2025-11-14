@@ -7,22 +7,22 @@ namespace Cartify.Application.Services.Implementation.Merchant
     {
         public Task<bool> ChangePasswordAsync(string userId, string oldPassword, string newPassword)
         {
-            throw new NotImplementedException();
+            return Task.FromException<bool>(new NotImplementedException());
         }
 
         public Task<MerchantProfileDto?> GetProfileByUserIdAsync(string userId)
         {
-            throw new NotImplementedException();
+            return Task.FromException<MerchantProfileDto?>(new NotImplementedException());
         }
 
         public Task<bool> UpdateProfileAsync(UpdateMerchantProfileDto dto)
         {
-            throw new NotImplementedException();
+            return Task.FromException<bool>(new NotImplementedException());
         }
 
         public Task<bool> UpdateStoreInfoAsync(UpdateStoreInfoDto dto)
         {
-            throw new NotImplementedException();
+            return Task.FromException<bool>(new NotImplementedException());
         }
     }
 }

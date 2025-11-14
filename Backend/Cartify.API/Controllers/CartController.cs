@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cartify.Application.Contracts.CartDtos;
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +18,14 @@ namespace Cartify.API.Controllers
         }
 
         [HttpPost("AddItem")]
-        public async Task<IActionResult> AddItem([FromBody] object item)
+        public async Task<IActionResult> AddItem([FromBody] AddCartItemDto item)
         {
             await Task.CompletedTask;
             return Ok();
         }
 
         [HttpPut("UpdateItemQuantity")]
-        public async Task<IActionResult> UpdateItemQuantity([FromBody] object update)
+        public async Task<IActionResult> UpdateItemQuantity([FromBody] UpdateCartItemQuantityDto update)
         {
             await Task.CompletedTask;
             return Ok();
